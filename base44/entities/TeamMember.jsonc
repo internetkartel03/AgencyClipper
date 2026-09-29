@@ -1,0 +1,31 @@
+{
+  "name": "TeamMember",
+  "type": "object",
+  "properties": {
+    "client": {
+      "type": "string",
+      "description": "Client record ID"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "CHANNEL_MANAGER",
+        "SHORT_FORM_EDITOR",
+        "LONG_FORM_EDITOR",
+        "THUMBNAIL_DESIGNER"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Monthly cost"
+    }
+  },
+  "required": [
+    "client",
+    "role",
+    "name"
+  ]
+}

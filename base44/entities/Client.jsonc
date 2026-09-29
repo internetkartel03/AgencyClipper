@@ -1,0 +1,66 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "channelUrl": {
+      "type": "string"
+    },
+    "channelThumbnail": {
+      "type": "string"
+    },
+    "channelSummary": {
+      "type": "string"
+    },
+    "offers": {
+      "type": "string"
+    },
+    "contentStrategy": {
+      "type": "string"
+    },
+    "planType": {
+      "type": "string",
+      "enum": [
+        "TEAM_ONLY",
+        "PERSONAL_INVOLVED",
+        "CUSTOM"
+      ]
+    },
+    "customPlanLabel": {
+      "type": "string"
+    },
+    "setupFee": {
+      "type": "number",
+      "default": 30000
+    },
+    "monthlyFee": {
+      "type": "number"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "CHURNED"
+      ],
+      "default": "ACTIVE"
+    },
+    "discordServerId": {
+      "type": "string"
+    },
+    "googleAccountEmail": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

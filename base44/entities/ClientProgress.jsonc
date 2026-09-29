@@ -1,0 +1,42 @@
+{
+  "name": "ClientProgress",
+  "type": "object",
+  "properties": {
+    "client": {
+      "type": "string",
+      "description": "Client record ID"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "WAITING_FOR_FOOTAGE",
+        "FILMING",
+        "EDITING_SHORT_FORM",
+        "EDITING_LONG_FORM",
+        "DESIGNING_THUMBNAIL",
+        "IN_REVIEW",
+        "UPLOADING",
+        "PUBLISHED"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "MANUAL",
+        "AI_DISCORD"
+      ],
+      "default": "MANUAL"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "client",
+    "stage"
+  ]
+}

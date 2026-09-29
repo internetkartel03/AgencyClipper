@@ -1,0 +1,34 @@
+{
+  "name": "AnalyticsSnapshot",
+  "type": "object",
+  "properties": {
+    "client": {
+      "type": "string",
+      "description": "Client record ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "views": {
+      "type": "number"
+    },
+    "subscribers": {
+      "type": "number"
+    },
+    "watchHours": {
+      "type": "number"
+    },
+    "impressionsCTR": {
+      "type": "number"
+    },
+    "topVideos": {
+      "type": "string",
+      "description": "JSON-encoded top videos"
+    }
+  },
+  "required": [
+    "client",
+    "date"
+  ]
+}

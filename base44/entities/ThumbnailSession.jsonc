@@ -1,0 +1,21 @@
+{
+  "name": "ThumbnailSession",
+  "type": "object",
+  "properties": {
+    "client": {
+      "type": "string",
+      "description": "Client record ID"
+    },
+    "title": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "client",
+    "title"
+  ]
+}

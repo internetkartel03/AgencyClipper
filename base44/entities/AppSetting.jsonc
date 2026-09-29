@@ -1,0 +1,16 @@
+{
+  "name": "AppSetting",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string",
+      "description": "Configuration or integration status; do not store private API credentials here"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

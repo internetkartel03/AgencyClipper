@@ -1,0 +1,34 @@
+{
+  "name": "KnowledgeEntry",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "THUMBNAIL_GLOBAL",
+        "VIDEO_GLOBAL",
+        "CLIENT_TITLES",
+        "CLIENT_IDEAS"
+      ]
+    },
+    "client": {
+      "type": "string",
+      "description": "Optional Client record ID"
+    },
+    "userInput": {
+      "type": "string"
+    },
+    "learnedPrinciple": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "scope",
+    "userInput",
+    "learnedPrinciple"
+  ]
+}

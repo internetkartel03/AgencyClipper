@@ -1,0 +1,35 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "channelUrl": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "TO_CONTACT",
+        "CONTACTED",
+        "IN_TALKS",
+        "CLOSED",
+        "LOST"
+      ],
+      "default": "TO_CONTACT"
+    },
+    "upfrontCash": {
+      "type": "number"
+    },
+    "monthlyRecurring": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
