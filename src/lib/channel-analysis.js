@@ -30,13 +30,8 @@ export const ANALYSIS_SCHEMA = {
 };
 
 export async function analyzeChannel(channelUrl) {
-  return base44.integrations.Core.InvokeLLM({
-    add_context_from_internet: true,
-    response_json_schema: ANALYSIS_SCHEMA,
-    prompt: `Analyze the YouTube channel at ${channelUrl} for a professional content agency. Use the newest, most recent uploads available now, not an old cached set. Return the public channel name and thumbnail URL, a concise channel summary, content style analysis, products/services/offers being sold, specific content strategy recommendations, growth opportunities, and up to 12 latest uploads with exact durations when discoverable.
-
-CRITICAL CLASSIFICATION RULE: classify every video by duration only. A video lasting 4:00 (240 seconds) or longer is LONG_FORM. Anything under 4:00 is SHORT_FORM. Do not use YouTube's Shorts tab, URL type, aspect ratio, or label as the definition. Collect both formats. Every strategy action must be one short sentence stating what to change and what to change it to; put supporting detail only in its reasoning field. Do not invent unavailable metrics.`,
-  });
+  const response = await base44.functions.invoke('analyzeAgencyChannel', { channelUrl });
+  return response.data.result;
 }
 
 export function analysisToClient(analysis) {

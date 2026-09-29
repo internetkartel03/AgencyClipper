@@ -14,9 +14,9 @@ export function PageHeader({ eyebrow = 'Agency Admin / Workspace', title, descri
 export function AiUnavailable({ compact = false }) {
   return <div className={`agency-soft-card rounded-2xl ${compact ? 'p-4' : 'p-6'}`}>
     <div className="flex gap-3"><Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[#64D2FF]" />
-      <div className="min-w-0"><p className="text-sm font-medium text-agency-primary">This tool will be available once you connect your API key</p>
+      <div className="min-w-0"><p className="text-sm font-medium text-agency-primary">AI could not complete this request</p>
         <details className="group mt-2 text-sm text-agency-muted"><summary className="flex cursor-pointer list-none items-center gap-1 text-[#64D2FF]">Here&apos;s how <ChevronDown className="h-3.5 w-3.5 transition group-open:rotate-180" /></summary>
-          <p className="mt-2 leading-6">Open Settings, choose Integrations, add your AI provider API key, and save. This feature will start working automatically.</p>
+          <p className="mt-2 leading-6">Try again in a moment. If the issue continues, review your app’s AI usage and function logs.</p>
         </details>
       </div>
     </div>
