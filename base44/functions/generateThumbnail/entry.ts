@@ -10,9 +10,10 @@ export default async function(req: Request): Promise<Response> {
 
     const input = await req.json();
     const prompt = typeof input.prompt === 'string' ? input.prompt.trim() : '';
-    if (!prompt || prompt.length > 2048) {
-      return Response.json({ error: 'Invalid input: prompt is missing or too long' }, { status: 400 });
+    if (!prompt) {
+      return Response.json({ error: 'Invalid input: prompt is missing' }, { status: 400 });
     }
+    const safePrompt = prompt.slice(0, 1800);
 
     const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
     const apiToken = Deno.env.get('CLOUDFLARE_API_TOKEN');
@@ -29,7 +30,7 @@ export default async function(req: Request): Promise<Response> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: `${prompt}\nCreate a clean, high-contrast 16:9 YouTube thumbnail composition. Do not add unreadable text or watermarks.`,
+          prompt: `${safePrompt}\nCreate a clean, high-contrast 16:9 YouTube thumbnail composition. Do not add unreadable text or watermarks.`,
           steps: 4,
         }),
       },
