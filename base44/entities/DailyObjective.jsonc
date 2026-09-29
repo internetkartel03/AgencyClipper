@@ -1,0 +1,10 @@
+{
+  "name": "DailyObjective",
+  "type": "object",
+  "properties": {
+    "text": { "type": "string" },
+    "completed": { "type": "boolean", "default": false },
+    "date": { "type": "string", "format": "date" }
+  },
+  "required": ["text", "completed"]
+}

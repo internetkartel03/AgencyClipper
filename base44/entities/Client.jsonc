@@ -14,11 +14,35 @@
     "channelSummary": {
       "type": "string"
     },
+    "contentStyleAnalysis": {
+      "type": "string"
+    },
     "offers": {
       "type": "string"
     },
     "contentStrategy": {
-      "type": "string"
+      "type": "string",
+      "description": "JSON-encoded action and reasoning objects"
+    },
+    "growthOpportunities": {
+      "type": "string",
+      "description": "JSON-encoded list of growth opportunities"
+    },
+    "latestUploads": {
+      "type": "string",
+      "description": "JSON-encoded latest uploads classified by the four-minute duration rule"
+    },
+    "analysisUpdatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "suggestedTitles": {
+      "type": "string",
+      "description": "JSON-encoded persisted title suggestions"
+    },
+    "suggestedIdeas": {
+      "type": "string",
+      "description": "JSON-encoded persisted long-form ideas"
     },
     "planType": {
       "type": "string",

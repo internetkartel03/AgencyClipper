@@ -12,7 +12,18 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import AgencyShell from '@/components/agency/AgencyShell';
-import AgencyPlaceholder from '@/pages/AgencyPlaceholder';
+import Clients from '@/pages/Clients';
+import ClientDetail from '@/pages/ClientDetail';
+import Money from '@/pages/Money';
+import Ideation from '@/pages/Ideation';
+import Dashboard from '@/pages/Dashboard';
+import CalendarPage from '@/pages/Calendar';
+import Leads from '@/pages/Leads';
+import Thumbnails from '@/pages/Thumbnails';
+import Analytics from '@/pages/Analytics';
+import Team from '@/pages/Team';
+import Onboarding from '@/pages/Onboarding';
+import Settings from '@/pages/Settings';
 import '@/components/agency/agency.css';
 
 const AuthenticatedApp = () => {
@@ -43,17 +54,18 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<AgencyShell />}>
-          <Route path="/" element={<AgencyPlaceholder />} />
-          <Route path="/money" element={<AgencyPlaceholder />} />
-          <Route path="/clients" element={<AgencyPlaceholder />} />
-          <Route path="/calendar" element={<AgencyPlaceholder />} />
-          <Route path="/leads" element={<AgencyPlaceholder />} />
-          <Route path="/ideation" element={<AgencyPlaceholder />} />
-          <Route path="/thumbnails" element={<AgencyPlaceholder />} />
-          <Route path="/analytics" element={<AgencyPlaceholder />} />
-          <Route path="/team" element={<AgencyPlaceholder />} />
-          <Route path="/onboarding" element={<AgencyPlaceholder />} />
-          <Route path="/settings" element={<AgencyPlaceholder />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/money" element={<Money />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/clients/:id" element={<ClientDetail />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/leads" element={<Leads />} />
+          <Route path="/ideation" element={<Ideation />} />
+          <Route path="/thumbnails" element={<Thumbnails />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
