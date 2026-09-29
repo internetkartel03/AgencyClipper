@@ -6,7 +6,6 @@ import { AiUnavailable } from '@/components/agency/AgencyUI';
 import { isApiConfigurationError } from '@/lib/channel-analysis';
 import { useClients } from '@/lib/agency-data';
 
-const SYSTEM_PROMPT = 'You are an expert content strategist specializing in personal-brand growth on YouTube and social media. You help ideate video titles, thumbnail concepts, content angles, hooks, and growth strategies. You remember everything in this thread and build on previous insights. When given a YouTube URL, analyze its content strategy and extract learnings.';
 const titleFrom = text => text.trim().replace(/\s+/g,' ').slice(0,54) || 'New idea';
 export default function Ideation() {
   const clients = useClients(); const [threads,setThreads]=useState([]); const [activeId,setActiveId]=useState(null); const [messages,setMessages]=useState([]); const [input,setInput]=useState(''); const [search,setSearch]=useState(''); const [panel,setPanel]=useState(true); const [busy,setBusy]=useState(false); const [apiMissing,setApiMissing]=useState(false); const [error,setError]=useState(''); const endRef=useRef(null);
