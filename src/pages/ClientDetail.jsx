@@ -260,7 +260,7 @@ export default function ClientDetail() {
               ))
             ) : (
               <p className="text-sm text-agency-muted">
-                Refresh analysis to load recent uploads.
+                No verifiable recent uploads were returned. Try refreshing later.
               </p>
             )}
           </div>

@@ -19,7 +19,7 @@ export default async function(req: Request): Promise<Response> {
     if (parsed.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(parsed.hostname)) throw new Error('Invalid input: enter a YouTube channel URL');
     return await core.InvokeLLM({
       add_context_from_internet: true, response_json_schema: schema,
-      prompt: `Analyze the public YouTube channel at ${url} for a content agency. Use the newest uploads you can verify. Return its name, thumbnail URL, summary, content style, offers, specific strategy actions with separate reasoning, growth opportunities, and up to 12 latest uploads with verifiable durations. A video lasting 240 seconds or more is long-form; under 240 seconds is short-form. Do not invent unavailable metrics or durations.`,
+      prompt: `Analyze the public YouTube channel at ${url} for a content agency. Use the newest uploads you can verify. Return its name, thumbnail URL, summary, content style, offers, specific strategy actions with separate reasoning, growth opportunities, and up to 12 latest uploads with verifiable durations. Every upload URL must be the real, direct HTTPS YouTube watch URL for that specific video and contain its exact 11-character video ID. Never return channel, Shorts-tab, search, example, placeholder, or invented URLs. If a video's direct URL or duration cannot be verified, omit it. A video lasting 240 seconds or more is long-form; under 240 seconds is short-form. Do not invent unavailable metrics or durations.`,
     });
   });
 }
