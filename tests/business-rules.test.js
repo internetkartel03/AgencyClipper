@@ -22,10 +22,12 @@ test("accepts YouTube channel URLs and rejects unrelated URLs", () => {
 
 test("accepts only direct YouTube video URLs for analyzed uploads", () => {
   assert.equal(
-    isYouTubeVideoUrl("https://www.youtube.com/watch?v=abc123"),
+    isYouTubeVideoUrl("https://www.youtube.com/watch?v=abcdefghijk"),
     true,
   );
-  assert.equal(isYouTubeVideoUrl("https://youtu.be/abc123"), true);
+  assert.equal(isYouTubeVideoUrl("https://youtu.be/abcdefghijk"), true);
+  assert.equal(isYouTubeVideoUrl("https://youtube.com/watch?v=example1"), false);
+  assert.equal(isYouTubeVideoUrl("https://youtu.be/example2"), false);
   assert.equal(isYouTubeVideoUrl("https://www.youtube.com/@creator"), false);
   assert.equal(isYouTubeVideoUrl("https://example.com/watch?v=abc123"), false);
 });
@@ -37,10 +39,14 @@ test("drops unverifiable uploads and classifies the four-minute boundary", () =>
       url: "https://www.youtube.com/@creator",
       durationSeconds: 500,
     },
-    { title: "Short", url: "https://youtu.be/short123", durationSeconds: 239 },
+    {
+      title: "Short",
+      url: "https://youtu.be/short123456",
+      durationSeconds: 239,
+    },
     {
       title: "Long",
-      url: "https://www.youtube.com/watch?v=long123",
+      url: "https://www.youtube.com/watch?v=long1234567",
       durationSeconds: "240",
     },
     {
