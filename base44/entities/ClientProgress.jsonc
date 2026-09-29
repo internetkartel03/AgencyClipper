@@ -38,5 +38,11 @@
   "required": [
     "client",
     "stage"
-  ]
+  ],
+  "rls": {
+    "create": { "user_condition": { "id": "{{user.id}}" } },
+    "read": { "user_condition": { "id": "{{user.id}}" } },
+    "update": { "user_condition": { "id": "{{user.id}}" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
 }

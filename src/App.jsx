@@ -1,30 +1,36 @@
-import { Toaster } from "@/components/ui/toaster"
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ScrollToTop from './components/ScrollToTop';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-import AgencyShell from '@/components/agency/AgencyShell';
-import Clients from '@/pages/Clients';
-import ClientDetail from '@/pages/ClientDetail';
-import Money from '@/pages/Money';
-import Ideation from '@/pages/Ideation';
-import Dashboard from '@/pages/Dashboard';
-import CalendarPage from '@/pages/Calendar';
-import Leads from '@/pages/Leads';
-import Thumbnails from '@/pages/Thumbnails';
-import Analytics from '@/pages/Analytics';
-import Team from '@/pages/Team';
-import Onboarding from '@/pages/Onboarding';
-import Settings from '@/pages/Settings';
-import '@/components/agency/agency.css';
+import { Toaster } from "@/components/ui/toaster";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClientInstance } from "@/lib/query-client";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import PageNotFound from "./lib/PageNotFound";
+import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import UserNotRegisteredError from "@/components/UserNotRegisteredError";
+import ScrollToTop from "./components/ScrollToTop";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import AgencyShell from "@/components/agency/AgencyShell";
+import Clients from "@/pages/Clients";
+import ClientDetail from "@/pages/ClientDetail";
+import Money from "@/pages/Money";
+import Ideation from "@/pages/Ideation";
+import Dashboard from "@/pages/Dashboard";
+import CalendarPage from "@/pages/Calendar";
+import Leads from "@/pages/Leads";
+import Thumbnails from "@/pages/Thumbnails";
+import Analytics from "@/pages/Analytics";
+import Team from "@/pages/Team";
+import Onboarding from "@/pages/Onboarding";
+import Settings from "@/pages/Settings";
+import "@/components/agency/agency.css";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -40,7 +46,7 @@ const AuthenticatedApp = () => {
 
   // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
+    if (authError.type === "user_not_registered") {
       return <UserNotRegisteredError />;
     }
   }
@@ -52,20 +58,28 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route
+        element={
+          <ProtectedRoute
+            unauthenticatedElement={<Navigate to="/login" replace />}
+          />
+        }
+      >
         <Route element={<AgencyShell />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/money" element={<Money />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/clients/:id" element={<ClientDetail />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/leads" element={<Leads />} />
           <Route path="/ideation" element={<Ideation />} />
           <Route path="/thumbnails" element={<Thumbnails />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/money" element={<Money />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/leads" element={<Leads />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -73,9 +87,7 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -86,7 +98,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

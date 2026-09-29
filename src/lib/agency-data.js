@@ -18,7 +18,7 @@ const list = entity => async () => base44.entities[entity].list('-created_date',
 
 export const useClients = () => useQuery({ queryKey: agencyKeys.clients, queryFn: list('Client') });
 export const useProgress = () => useQuery({ queryKey: agencyKeys.progress, queryFn: list('ClientProgress') });
-export const usePayments = () => useQuery({ queryKey: agencyKeys.payments, queryFn: list('Payment') });
+export const usePayments = (options = {}) => useQuery({ queryKey: agencyKeys.payments, queryFn: list('Payment'), ...options });
 export const useTeam = () => useQuery({ queryKey: agencyKeys.team, queryFn: list('TeamMember') });
 export const useAnalytics = () => useQuery({ queryKey: agencyKeys.analytics, queryFn: list('AnalyticsSnapshot') });
 export const useLeads = () => useQuery({ queryKey: agencyKeys.leads, queryFn: list('Lead') });

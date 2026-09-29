@@ -1,2 +1,176 @@
-import { useState } from 'react';import { Plus } from 'lucide-react';import { AiUnavailable,ErrorState,LoadingState,PageHeader } from '@/components/agency/AgencyUI';import { Area,AreaChart,CartesianGrid,ResponsiveContainer,Tooltip,XAxis,YAxis } from 'recharts';import { agencyKeys,useAnalytics,useClients,useEntityMutation } from '@/lib/agency-data';
-const blank={client:'',date:new Date().toISOString().slice(0,10),views:0,subscribers:0,watchHours:0,impressionsCTR:0,topVideos:'[]'};export default function Analytics(){const clients=useClients(),analytics=useAnalytics(),mut=useEntityMutation('AnalyticsSnapshot',agencyKeys.analytics);const [selected,setSelected]=useState('ALL'),[open,setOpen]=useState(false),[form,setForm]=useState(blank);if(clients.isLoading||analytics.isLoading)return <LoadingState/>;if(clients.isError||analytics.isError)return <ErrorState/>;const rows=(analytics.data||[]).filter(a=>selected==='ALL'||a.client===selected).sort((a,b)=>a.date.localeCompare(b.date));const latest=rows.at(-1);const save=async e=>{e.preventDefault();await mut.mutateAsync({action:'create',data:{...form,views:Number(form.views),subscribers:Number(form.subscribers),watchHours:Number(form.watchHours),impressionsCTR:Number(form.impressionsCTR)}});setOpen(false)};return <section className="agency-enter"><PageHeader title="Analytics" description="Public and manually entered performance snapshots—private metrics are never fabricated." actions={<button className="agency-button-primary" onClick={()=>setOpen(v=>!v)}><Plus className="h-4 w-4"/>Manual snapshot</button>}/><div className="agency-glass mb-5 flex gap-3 rounded-2xl p-3"><select className="agency-filter" value={selected} onChange={e=>setSelected(e.target.value)}><option value="ALL">All clients</option>{(clients.data||[]).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>{open&&<form onSubmit={save} className="agency-glass mb-5 grid gap-4 rounded-2xl p-5 sm:grid-cols-3"><label className="agency-field"><span>Client</span><select required value={form.client} onChange={e=>setForm({...form,client:e.target.value})}><option value="">Choose</option>{clients.data.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>{[['date','Date','date'],['views','Views','number'],['subscribers','Subscribers','number'],['watchHours','Watch hours','number'],['impressionsCTR','CTR %','number']].map(([k,l,t])=><label className="agency-field" key={k}><span>{l}</span><input required type={t} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/></label>)}<button className="agency-button-primary sm:col-span-3">Save snapshot</button></form>}<div className="mb-5"><AiUnavailable compact/></div><div className="grid gap-4 sm:grid-cols-4">{[['Views',latest?.views],['Subscribers',latest?.subscribers],['Watch hours',latest?.watchHours],['CTR',latest?`${latest.impressionsCTR||0}%`:null]].map(([l,v])=><div className="agency-glass rounded-2xl p-5" key={l}><p className="text-xs text-agency-muted">{l}</p><p className="mt-3 text-2xl font-semibold text-agency-primary">{v??'—'}</p></div>)}</div><article className="agency-glass mt-5 rounded-2xl p-5"><h2 className="font-semibold text-agency-primary">Views over time</h2><div className="mt-4 h-72">{rows.length?<ResponsiveContainer><AreaChart data={rows}><CartesianGrid stroke="rgba(255,255,255,.06)"/><XAxis dataKey="date" stroke="#86868b" fontSize={11}/><YAxis stroke="#86868b" fontSize={11}/><Tooltip/><Area dataKey="views" stroke="#64D2FF" fill="#64D2FF33"/></AreaChart></ResponsiveContainer>:<div className="grid h-full place-items-center text-sm text-agency-muted">No analytics snapshots yet.</div>}</div></article></section>}
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import {
+  AiUnavailable,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+} from "@/components/agency/AgencyUI";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  agencyKeys,
+  useAnalytics,
+  useClients,
+  useEntityMutation,
+} from "@/lib/agency-data";
+import { useAuth } from "@/lib/AuthContext";
+const blank = {
+  client: "",
+  date: new Date().toISOString().slice(0, 10),
+  views: 0,
+  subscribers: 0,
+  watchHours: 0,
+  impressionsCTR: 0,
+  topVideos: "[]",
+};
+export default function Analytics() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const clients = useClients(),
+    analytics = useAnalytics(),
+    mut = useEntityMutation("AnalyticsSnapshot", agencyKeys.analytics);
+  const [selected, setSelected] = useState("ALL"),
+    [open, setOpen] = useState(false),
+    [form, setForm] = useState(blank);
+  if (clients.isLoading || analytics.isLoading) return <LoadingState />;
+  if (clients.isError || analytics.isError) return <ErrorState />;
+  const rows = (analytics.data || [])
+    .filter((a) => selected === "ALL" || a.client === selected)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const latest = rows.at(-1);
+  const save = async (e) => {
+    e.preventDefault();
+    await mut.mutateAsync({
+      action: "create",
+      data: {
+        ...form,
+        views: Number(form.views),
+        subscribers: Number(form.subscribers),
+        watchHours: Number(form.watchHours),
+        impressionsCTR: Number(form.impressionsCTR),
+      },
+    });
+    setOpen(false);
+  };
+  return (
+    <section className="agency-enter">
+      <PageHeader
+        title="Analytics"
+        description="Public and manually entered performance snapshots—private metrics are never fabricated."
+        actions={
+          isAdmin ? (
+            <button
+              className="agency-button-primary"
+              onClick={() => setOpen((v) => !v)}
+            >
+              <Plus className="h-4 w-4" />
+              Manual snapshot
+            </button>
+          ) : null
+        }
+      />
+      <div className="agency-glass mb-5 flex gap-3 rounded-2xl p-3">
+        <select
+          className="agency-filter"
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+        >
+          <option value="ALL">All clients</option>
+          {(clients.data || []).map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      {isAdmin && open && (
+        <form
+          onSubmit={save}
+          className="agency-glass mb-5 grid gap-4 rounded-2xl p-5 sm:grid-cols-3"
+        >
+          <label className="agency-field">
+            <span>Client</span>
+            <select
+              required
+              value={form.client}
+              onChange={(e) => setForm({ ...form, client: e.target.value })}
+            >
+              <option value="">Choose</option>
+              {clients.data.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {[
+            ["date", "Date", "date"],
+            ["views", "Views", "number"],
+            ["subscribers", "Subscribers", "number"],
+            ["watchHours", "Watch hours", "number"],
+            ["impressionsCTR", "CTR %", "number"],
+          ].map(([k, l, t]) => (
+            <label className="agency-field" key={k}>
+              <span>{l}</span>
+              <input
+                required
+                type={t}
+                value={form[k]}
+                onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+              />
+            </label>
+          ))}
+          <button className="agency-button-primary sm:col-span-3">
+            Save snapshot
+          </button>
+        </form>
+      )}
+      <div className="mb-5">
+        <AiUnavailable compact />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-4">
+        {[
+          ["Views", latest?.views],
+          ["Subscribers", latest?.subscribers],
+          ["Watch hours", latest?.watchHours],
+          ["CTR", latest ? `${latest.impressionsCTR || 0}%` : null],
+        ].map(([l, v]) => (
+          <div className="agency-glass rounded-2xl p-5" key={l}>
+            <p className="text-xs text-agency-muted">{l}</p>
+            <p className="mt-3 text-2xl font-semibold text-agency-primary">
+              {v ?? "—"}
+            </p>
+          </div>
+        ))}
+      </div>
+      <article className="agency-glass mt-5 rounded-2xl p-5">
+        <h2 className="font-semibold text-agency-primary">Views over time</h2>
+        <div className="mt-4 h-72">
+          {rows.length ? (
+            <ResponsiveContainer>
+              <AreaChart data={rows}>
+                <CartesianGrid stroke="rgba(255,255,255,.06)" />
+                <XAxis dataKey="date" stroke="#86868b" fontSize={11} />
+                <YAxis stroke="#86868b" fontSize={11} />
+                <Tooltip />
+                <Area dataKey="views" stroke="#64D2FF" fill="#64D2FF33" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="grid h-full place-items-center text-sm text-agency-muted">
+              No analytics snapshots yet.
+            </div>
+          )}
+        </div>
+      </article>
+    </section>
+  );
+}
