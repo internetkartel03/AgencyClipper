@@ -30,6 +30,7 @@ import Analytics from "@/pages/Analytics";
 import Team from "@/pages/Team";
 import Onboarding from "@/pages/Onboarding";
 import Settings from "@/pages/Settings";
+import Account from "@/pages/Account";
 import "@/components/agency/agency.css";
 
 const AuthenticatedApp = () => {
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
           <Route path="/ideation" element={<Ideation />} />
           <Route path="/thumbnails" element={<Thumbnails />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/account" element={<Account />} />
           <Route element={<AdminRoute />}>
             <Route path="/money" element={<Money />} />
             <Route path="/calendar" element={<CalendarPage />} />

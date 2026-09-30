@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MailPlus, Plus, Trash2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import {
   ErrorState,
   LoadingState,
@@ -20,7 +21,27 @@ export default function Team() {
     team = useTeam(),
     mutation = useEntityMutation("TeamMember", agencyKeys.team);
   const [form, setForm] = useState(blank),
-    [open, setOpen] = useState(false);
+    [open, setOpen] = useState(false),
+    [users, setUsers] = useState([]),
+    [usersLoading, setUsersLoading] = useState(true),
+    [usersError, setUsersError] = useState(""),
+    [invite, setInvite] = useState({ email: "", role: "user" }),
+    [inviteBusy, setInviteBusy] = useState(false),
+    [inviteMessage, setInviteMessage] = useState("");
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    setUsersError("");
+    try {
+      setUsers(await base44.entities.User.list("-created_date", 200));
+    } catch (error) {
+      setUsersError(error?.message || "Team logins could not be loaded.");
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadUsers();
+  }, []);
   if (clients.isLoading || team.isLoading) return <LoadingState />;
   if (clients.isError || team.isError) return <ErrorState />;
   const members = team.data || [];
@@ -34,6 +55,21 @@ export default function Team() {
     setOpen(false);
   };
   const capacity = calculateTeamCapacity(members);
+  const inviteUser = async (event) => {
+    event.preventDefault();
+    setInviteBusy(true);
+    setInviteMessage("");
+    try {
+      await base44.auth.inviteUser(invite.email.trim(), invite.role);
+      setInviteMessage(`Invitation sent to ${invite.email.trim()}.`);
+      setInvite({ email: "", role: "user" });
+      await loadUsers();
+    } catch (error) {
+      setInviteMessage(error?.message || "The invitation could not be sent.");
+    } finally {
+      setInviteBusy(false);
+    }
+  };
   return (
     <section className="agency-enter">
       <PageHeader
@@ -65,6 +101,46 @@ export default function Team() {
           </span>
         )}
       </div>
+      <article className="agency-glass mb-5 rounded-2xl p-5">
+        <div className="flex items-center gap-2">
+          <MailPlus className="h-5 w-5 text-[#64D2FF]" />
+          <h2 className="font-semibold text-agency-primary">Team logins</h2>
+        </div>
+        <p className="mt-1 text-sm text-agency-muted">
+          Invite people to sign in from any network and control whether they receive member or administrator access.
+        </p>
+        <form onSubmit={inviteUser} className="mt-4 grid gap-3 sm:grid-cols-[1fr_150px_auto]">
+          <label className="agency-field">
+            <span>Email address</span>
+            <input type="email" required value={invite.email} onChange={(event) => setInvite({ ...invite, email: event.target.value })} placeholder="teammate@example.com" />
+          </label>
+          <label className="agency-field">
+            <span>Access</span>
+            <select value={invite.role} onChange={(event) => setInvite({ ...invite, role: event.target.value })}>
+              <option value="user">Member</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </label>
+          <button className="agency-button-primary self-end" disabled={inviteBusy || !invite.email.trim()}>
+            {inviteBusy ? "Sending…" : "Send invite"}
+          </button>
+        </form>
+        {inviteMessage && <p role="status" className="mt-3 text-sm text-agency-muted">{inviteMessage}</p>}
+        <div className="mt-4 divide-y divide-white/[.08] rounded-xl border border-white/[.08]">
+          {users.map((account) => (
+            <div key={account.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm text-agency-primary">{account.full_name || account.email}</p>
+                {account.full_name && <p className="truncate text-xs text-agency-muted">{account.email}</p>}
+              </div>
+              <span className={`agency-status ${account.role === "admin" ? "blue" : "neutral"}`}>{labelize(account.role)}</span>
+            </div>
+          ))}
+          {!usersLoading && !users.length && <p className="p-4 text-sm text-agency-muted">No team logins yet.</p>}
+          {usersLoading && <p className="p-4 text-sm text-agency-muted">Loading logins…</p>}
+          {usersError && <p role="alert" className="p-4 text-sm text-[#FF453A]">{usersError}</p>}
+        </div>
+      </article>
       {open && (
         <form
           onSubmit={save}

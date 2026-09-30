@@ -1,5 +1,5 @@
 {
-  "name": "Agency Admin",
+  "name": "Cut Ledger",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",
