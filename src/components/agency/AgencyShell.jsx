@@ -91,7 +91,7 @@ export default function AgencyShell() {
               </button>
               <a
                 className="agency-button-primary"
-                href="/settings"
+                href="/settings?guide=AI_PROVIDER"
                 onClick={closeWelcome}
               >
                 Get started

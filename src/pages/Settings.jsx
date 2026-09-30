@@ -1,5 +1,17 @@
-import { useEffect, useState } from "react";
-import { Bot, ChevronDown, Plug, RefreshCw, Send, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  Bot,
+  Check,
+  Clipboard,
+  Clock3,
+  Plug,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  Trash2,
+  X,
+} from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import {
   ErrorState,
@@ -7,30 +19,14 @@ import {
   PageHeader,
 } from "@/components/agency/AgencyUI";
 import { agencyKeys, useEntityMutation, useKnowledge } from "@/lib/agency-data";
-const integrations = [
-  [
-    "Built-in AI",
-    "Powers analysis, ideation, training, and reasoning. No separate AI key is needed.",
-    "AI_PROVIDER",
-  ],
-  [
-    "Cloudflare Workers AI",
-    "Free-tier thumbnail generation with FLUX Schnell. Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN as server-side Base44 secrets.",
-    "CLOUDFLARE",
-  ],
-  [
-    "YouTube Data API",
-    "Add YOUTUBE_API_KEY as a server-side Base44 secret.",
-    "YOUTUBE",
-  ],
-  [
-    "Discord bot",
-    "Add DISCORD_BOT_TOKEN as a server-side secret with Message Content Intent and read-only permissions.",
-    "DISCORD",
-  ],
-  ["Notion", "Optional: add NOTION_TOKEN as a server-side secret.", "NOTION"],
-];
+import {
+  getIntegrationDefinition,
+  integrationDefinitions,
+  integrationStatusTone,
+  setupCompletion,
+} from "@/lib/integrations";
 export default function Settings() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const knowledge = useKnowledge(),
     mut = useEntityMutation("KnowledgeEntry", agencyKeys.knowledge);
   const [scope, setScope] = useState("VIDEO_GLOBAL"),
@@ -39,17 +35,37 @@ export default function Settings() {
     [summary, setSummary] = useState(""),
     [error, setError] = useState(""),
     [integrationStatus, setIntegrationStatus] = useState({}),
-    [checkingIntegrations, setCheckingIntegrations] = useState(true);
-  const checkIntegrations = async () => {
+    [checkingIntegrations, setCheckingIntegrations] = useState(true),
+    [lastTested, setLastTested] = useState({}),
+    [guideKey, setGuideKey] = useState(() => searchParams.get("guide") || ""),
+    [guideChecks, setGuideChecks] = useState({}),
+    [guideResult, setGuideResult] = useState("");
+  const checkIntegrations = async (targetKey = "") => {
     setCheckingIntegrations(true);
+    setError("");
     try {
       const response = await base44.functions.invoke(
         "getAgencyIntegrationStatus",
         {},
       );
       setIntegrationStatus(response.data || {});
+      const checkedAt = new Date().toISOString();
+      setLastTested((current) =>
+        targetKey
+          ? { ...current, [targetKey]: checkedAt }
+          : Object.fromEntries(
+              integrationDefinitions.map(({ key }) => [key, checkedAt]),
+            ),
+      );
+      return response.data || {};
     } catch (err) {
       setError(err?.message || "Integration status could not be checked.");
+      if (targetKey)
+        setIntegrationStatus((current) => ({
+          ...current,
+          [targetKey]: { state: "error", label: "Error" },
+        }));
+      return null;
     } finally {
       setCheckingIntegrations(false);
     }
@@ -57,9 +73,39 @@ export default function Settings() {
   useEffect(() => {
     checkIntegrations();
   }, []);
+  useEffect(() => {
+    const requested = searchParams.get("guide");
+    if (requested && getIntegrationDefinition(requested))
+      setGuideKey(requested);
+  }, [searchParams]);
   if (knowledge.isLoading) return <LoadingState />;
   if (knowledge.isError) return <ErrorState />;
   const entries = (knowledge.data || []).filter((k) => k.scope === scope);
+  const guide = getIntegrationDefinition(guideKey);
+  const guideProgress = useMemo(
+    () =>
+      setupCompletion(guideChecks[guideKey] || [], guide?.steps.length || 0),
+    [guide, guideChecks, guideKey],
+  );
+  const openGuide = (key) => {
+    setGuideKey(key);
+    setGuideResult("");
+    setSearchParams({ guide: key });
+  };
+  const closeGuide = () => {
+    setGuideKey("");
+    setGuideResult("");
+    setSearchParams({});
+  };
+  const testGuide = async () => {
+    const result = await checkIntegrations(guideKey);
+    if (!result) return;
+    setGuideResult(
+      result[guideKey]?.state === "connected"
+        ? "Connection verified."
+        : result[guideKey]?.label || "Not configured yet.",
+    );
+  };
   const train = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -124,14 +170,14 @@ export default function Settings() {
         Integrations
       </h2>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {integrations.map(([name, guide, key]) => (
+        {integrationDefinitions.map(({ name, description, key, minutes }) => (
           <article className="agency-glass rounded-2xl p-5" key={key}>
             <div className="flex items-center justify-between">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-[#64D2FF]">
                 <Plug className="h-5 w-5" />
               </span>
               <span
-                className={`agency-status ${integrationStatus[key]?.state === "connected" ? "green" : integrationStatus[key]?.state === "available" ? "blue" : "neutral"}`}
+                className={`agency-status ${integrationStatusTone(integrationStatus[key]?.state)}`}
               >
                 {checkingIntegrations
                   ? "Checking…"
@@ -139,27 +185,171 @@ export default function Settings() {
               </span>
             </div>
             <h3 className="mt-4 font-semibold text-agency-primary">{name}</h3>
-            <details className="group mt-3 text-sm text-agency-muted">
-              <summary className="flex cursor-pointer items-center gap-1 text-[#64D2FF]">
-                Setup guide{" "}
-                <ChevronDown className="h-3.5 w-3.5 group-open:rotate-180" />
-              </summary>
-              <p className="mt-3 leading-6">
-                {guide} After saving the secret, deploy the backend and use Test
-                Connection. Never paste secrets into this page.
-              </p>
-            </details>
-            <button
-              className="agency-button-secondary mt-4 w-full"
-              onClick={checkIntegrations}
-              disabled={checkingIntegrations}
-            >
-              <RefreshCw className="h-4 w-4" />
-              Check status
-            </button>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-agency-muted">
+              {description}
+            </p>
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-agency-muted">
+              <Clock3 className="h-3.5 w-3.5" /> About {minutes} min · Last
+              tested{" "}
+              {lastTested[key]
+                ? new Date(lastTested[key]).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "never"}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                className="agency-button-secondary"
+                onClick={() => openGuide(key)}
+              >
+                <ShieldCheck className="h-4 w-4" /> Setup
+              </button>
+              <button
+                className="agency-button-secondary"
+                onClick={() => checkIntegrations(key)}
+                disabled={checkingIntegrations}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${checkingIntegrations ? "animate-spin" : ""}`}
+                />
+                Test
+              </button>
+            </div>
           </article>
         ))}
       </div>
+      {guide && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="integration-guide-title"
+        >
+          <article className="agency-glass agency-scrollbar max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#64D2FF]">
+                  {guide.required
+                    ? "Required integration"
+                    : "Optional integration"}{" "}
+                  · {guide.minutes} min
+                </p>
+                <h2
+                  id="integration-guide-title"
+                  className="mt-2 text-2xl font-semibold text-agency-primary"
+                >
+                  Connect {guide.name}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-agency-muted">
+                  {guide.description}
+                </p>
+              </div>
+              <button
+                className="agency-icon-button h-9 w-9 shrink-0 rounded-xl"
+                onClick={closeGuide}
+                aria-label="Close setup guide"
+              >
+                <X className="m-auto h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-5">
+              <div className="mb-2 flex justify-between text-xs text-agency-muted">
+                <span>
+                  {guideProgress.complete} of {guideProgress.total} steps
+                  checked
+                </span>
+                <span>{guideProgress.percent}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-[#30D158] transition-all"
+                  style={{ width: `${guideProgress.percent}%` }}
+                />
+              </div>
+            </div>
+            <ol className="mt-5 space-y-3">
+              {guide.steps.map((step, index) => (
+                <li
+                  key={step}
+                  className="rounded-2xl border border-white/10 bg-white/[.035] p-4"
+                >
+                  <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-agency-muted">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 accent-[#30D158]"
+                      checked={Boolean(guideChecks[guideKey]?.[index])}
+                      onChange={(event) =>
+                        setGuideChecks((current) => {
+                          const next = [...(current[guideKey] || [])];
+                          next[index] = event.target.checked;
+                          return { ...current, [guideKey]: next };
+                        })
+                      }
+                    />
+                    <span>
+                      <strong className="text-agency-primary">
+                        {index + 1}.
+                      </strong>{" "}
+                      {step}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ol>
+            {guide.secretNames.length > 0 && (
+              <div className="mt-5 rounded-2xl border border-[#FF9F0A]/20 bg-[#FF9F0A]/[.06] p-4">
+                <p className="text-sm font-semibold text-agency-primary">
+                  Base44 secret names
+                </p>
+                <p className="mt-1 text-xs leading-5 text-agency-muted">
+                  Copy only these names. Enter their values directly in Base44
+                  Secrets.
+                </p>
+                <div className="mt-3 space-y-2">
+                  {guide.secretNames.map((secretName) => (
+                    <div
+                      key={secretName}
+                      className="flex items-center justify-between rounded-xl bg-black/25 px-3 py-2 font-mono text-xs text-[#64D2FF]"
+                    >
+                      <span>{secretName}</span>
+                      <button
+                        className="agency-icon-button h-8 w-8 rounded-lg"
+                        onClick={() =>
+                          navigator.clipboard.writeText(secretName)
+                        }
+                        aria-label={`Copy ${secretName}`}
+                      >
+                        <Clipboard className="m-auto h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <button
+                className="agency-button-primary"
+                onClick={testGuide}
+                disabled={checkingIntegrations}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${checkingIntegrations ? "animate-spin" : ""}`}
+                />{" "}
+                Test connection
+              </button>
+              {guideResult && (
+                <span className="text-sm text-agency-muted">{guideResult}</span>
+              )}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-agency-muted">
+              To disconnect, remove the named secret from Base44 Secrets and
+              test again. Never store secret values in frontend code, browser
+              storage, logs, or normal database records.
+            </p>
+          </article>
+        </div>
+      )}
       <div className="mt-9 flex items-end justify-between">
         <div>
           <h2 className="text-xl font-semibold text-agency-primary">
