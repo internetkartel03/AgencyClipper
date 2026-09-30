@@ -62,7 +62,7 @@ export default function AgencyShell() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-xl">
           <div className="agency-glass w-full max-w-2xl rounded-[20px] p-7">
             <h2 className="text-3xl font-semibold text-agency-primary">
-              Welcome to Agency Admin
+              Welcome to Cut Ledger
             </h2>
             <p className="mt-2 text-agency-muted">
               Connect services in this recommended order. The app remains usable

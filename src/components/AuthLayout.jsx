@@ -1,23 +1,33 @@
 import React from "react";
+import cutLedgerLogo from "@/assets/cut-ledger-logo-transparent.png";
 
-export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
+export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
-            <Icon className="w-7 h-7 text-primary-foreground" aria-hidden="true" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
+    <main className="cut-ledger-auth min-h-screen px-4 py-10">
+      <div className="cut-ledger-auth-glow" aria-hidden="true" />
+      <div className="relative z-10 w-full max-w-[420px]">
+        <div className="mb-5 text-center">
+          <img
+            src={cutLedgerLogo}
+            alt="Cut Ledger"
+            className="mx-auto h-auto w-[155px] max-w-[48vw] object-contain"
+          />
+          <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-white">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-2 text-sm tracking-[0.01em] text-white/50">
+              {subtitle}
+            </p>
+          )}
         </div>
-        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+        <div className="cut-ledger-auth-panel rounded-[22px] p-6">
           {children}
         </div>
         {footer && (
-          <p className="text-center text-sm text-muted-foreground mt-6">{footer}</p>
+          <p className="mt-4 text-center text-sm text-white/45">{footer}</p>
         )}
       </div>
-    </div>
+    </main>
   );
 }

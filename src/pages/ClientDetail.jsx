@@ -129,7 +129,7 @@ export default function ClientDetail() {
         All clients
       </Link>
       <PageHeader
-        eyebrow="Agency Admin / Clients"
+        eyebrow="Cut Ledger / Clients"
         title={client.name}
         description={`${labelize(client.planType)} · ${money(client.monthlyFee)}/month`}
         actions={
@@ -260,7 +260,8 @@ export default function ClientDetail() {
               ))
             ) : (
               <p className="text-sm text-agency-muted">
-                No verifiable recent uploads were returned. Try refreshing later.
+                No verifiable recent uploads were returned. Try refreshing
+                later.
               </p>
             )}
           </div>

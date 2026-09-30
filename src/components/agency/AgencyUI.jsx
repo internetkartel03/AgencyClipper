@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 /** @param {{eyebrow?: string, title: string, description?: string, actions?: import('react').ReactNode}} props */
 export function PageHeader({
-  eyebrow = "Agency Admin / Workspace",
+  eyebrow = "Cut Ledger / Workspace",
   title,
   description,
   actions,

@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { navigation } from "./navigation";
 import { useAuth } from "@/lib/AuthContext";
+import cutLedgerLogo from "@/assets/cut-ledger-logo-transparent.png";
 
 export default function Sidebar({
   collapsed,
@@ -32,18 +33,22 @@ export default function Sidebar({
             to="/"
             onClick={onClose}
             className="flex min-w-0 items-center gap-3"
-            aria-label="Agency Admin home"
+            aria-label="Cut Ledger home"
           >
-            <span className="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[16px] font-semibold tracking-[-.07em] text-white">
-              A<span className="text-[#64D2FF]">.</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden">
+              <img
+                src={cutLedgerLogo}
+                alt=""
+                className="h-[62px] w-[62px] max-w-none object-contain"
+              />
             </span>
             {!collapsed && (
               <span className="hidden whitespace-nowrap text-[15px] font-semibold tracking-[-.02em] text-agency-primary lg:block">
-                Agency Admin
+                Cut Ledger
               </span>
             )}
             <span className="whitespace-nowrap text-[15px] font-semibold tracking-[-.02em] text-agency-primary lg:hidden">
-              Agency Admin
+              Cut Ledger
             </span>
           </NavLink>
           <button
