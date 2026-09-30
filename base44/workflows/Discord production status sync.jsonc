@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/30 * * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Reads Discord production updates and records ClientProgress every 30 minutes.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "discord_production_status_sync",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync_discord_progress": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncDiscordProgress",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sync Discord production status",
+            "description": "Update client production progress"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Discord production status sync"
+}
