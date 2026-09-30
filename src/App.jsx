@@ -6,7 +6,9 @@ import {
   Route,
   Routes,
   Navigate,
+  useLocation,
 } from "react-router-dom";
+import { useEffect } from "react";
 import PageNotFound from "./lib/PageNotFound";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
@@ -32,6 +34,36 @@ import Onboarding from "@/pages/Onboarding";
 import Settings from "@/pages/Settings";
 import Account from "@/pages/Account";
 import "@/components/agency/agency.css";
+
+const routeTitles = {
+  "/": "Dashboard",
+  "/login": "Login",
+  "/register": "Create account",
+  "/forgot-password": "Reset password",
+  "/reset-password": "Choose password",
+  "/clients": "Clients",
+  "/money": "Money",
+  "/calendar": "Calendar",
+  "/leads": "Leads",
+  "/ideation": "Ideation",
+  "/thumbnails": "Thumbnails",
+  "/analytics": "Analytics",
+  "/team": "Team",
+  "/onboarding": "Onboarding",
+  "/settings": "Settings",
+  "/account": "Account",
+};
+
+function DocumentTitle() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const title = pathname.startsWith("/clients/")
+      ? "Client"
+      : routeTitles[pathname] || "Cut Ledger";
+    document.title = title === "Cut Ledger" ? title : `${title} | Cut Ledger`;
+  }, [pathname]);
+  return null;
+}
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -94,6 +126,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <DocumentTitle />
           <ScrollToTop />
           <AuthenticatedApp />
         </Router>
