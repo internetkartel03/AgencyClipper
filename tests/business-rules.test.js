@@ -7,6 +7,14 @@ import {
   groupThumbnailSessions,
 } from "../src/lib/operations.js";
 import {
+  buildVariationPrompts,
+  clampOverlayPosition,
+  generateAndPersistVariations,
+  groupThumbnailMessages,
+  isIntegrationUnavailable,
+  variationStatus,
+} from "../src/lib/thumbnail-tools.js";
+import {
   classifyVideo,
   isYouTubeChannelUrl,
   isYouTubeVideoUrl,
@@ -145,4 +153,53 @@ test("groups thumbnail sessions by client and calculates named-member capacity",
     ]),
     [{ name: "Alex", clients: 2, overloaded: false }],
   );
+});
+
+test("groups persisted thumbnail variations and constrains overlay positions", () => {
+  const rows = groupThumbnailMessages([
+    { id: "intro", role: "assistant", content: "Direction" },
+    { id: "v2", variationGroup: "g", variationIndex: 2, imageUrl: "two" },
+    { id: "v1", variationGroup: "g", variationIndex: 1, imageUrl: "one" },
+  ]);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(
+    rows[1].variations.map((item) => item.imageUrl),
+    ["one", "two"],
+  );
+  assert.deepEqual(clampOverlayPosition({ x: -20, y: 120 }), { x: 5, y: 95 });
+  assert.equal(buildVariationPrompts("Red box").length, 3);
+  assert.match(buildVariationPrompts("Red box")[2], /variation 3 of 3/i);
+  assert.deepEqual(variationStatus(2), {
+    complete: false,
+    label: "2 of 3 variations saved",
+  });
+  assert.equal(variationStatus(3).complete, true);
+  assert.equal(isIntegrationUnavailable(new Error("AI_NOT_CONFIGURED")), true);
+  assert.equal(
+    isIntegrationUnavailable("DISCORD_BOT_TOKEN is not configured"),
+    true,
+  );
+  assert.equal(isIntegrationUnavailable(new Error("Network timeout")), false);
+});
+
+test("persists successful variations and reports individual failures", async () => {
+  const generated = [];
+  const persisted = [];
+  const result = await generateAndPersistVariations({
+    prompts: ["one", "two", "three"],
+    generate: async (prompt, index) => {
+      generated.push([prompt, index]);
+      if (index === 1) throw new Error("AI_NOT_CONFIGURED");
+      return `image-${index}`;
+    },
+    persist: async (image, index) => persisted.push([image, index]),
+  });
+  assert.equal(generated.length, 3);
+  assert.deepEqual(persisted, [
+    ["image-0", 0],
+    ["image-2", 2],
+  ]);
+  assert.equal(result.saved, 2);
+  assert.equal(result.failures.length, 1);
+  assert.equal(result.missingIntegration, true);
 });
