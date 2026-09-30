@@ -178,9 +178,11 @@ export default function Settings() {
               <span
                 className={`agency-status ${integrationStatusTone(integrationStatus[key]?.state)}`}
               >
-                {checkingIntegrations
-                  ? "Checking…"
-                  : integrationStatus[key]?.label || "Unavailable"}
+                {key === "HIGGSFIELD"
+                  ? "Setup pending"
+                  : checkingIntegrations
+                    ? "Checking…"
+                    : integrationStatus[key]?.label || "Unavailable"}
               </span>
             </div>
             <h3 className="mt-4 font-semibold text-agency-primary">{name}</h3>
@@ -207,7 +209,8 @@ export default function Settings() {
               <button
                 className="agency-button-secondary"
                 onClick={() => checkIntegrations(key)}
-                disabled={checkingIntegrations}
+                disabled={checkingIntegrations || key === "HIGGSFIELD"}
+                title={key === "HIGGSFIELD" ? "Add credentials and complete the integration before testing." : undefined}
               >
                 <RefreshCw
                   className={`h-4 w-4 ${checkingIntegrations ? "animate-spin" : ""}`}
@@ -330,7 +333,8 @@ export default function Settings() {
               <button
                 className="agency-button-primary"
                 onClick={testGuide}
-                disabled={checkingIntegrations}
+                disabled={checkingIntegrations || guideKey === "HIGGSFIELD"}
+                title={guideKey === "HIGGSFIELD" ? "Add credentials and complete the integration before testing." : undefined}
               >
                 <RefreshCw
                   className={`h-4 w-4 ${checkingIntegrations ? "animate-spin" : ""}`}

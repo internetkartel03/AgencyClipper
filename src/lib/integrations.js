@@ -14,10 +14,25 @@ export const integrationDefinitions = [
     ],
   },
   {
+    key: "HIGGSFIELD",
+    name: "Higgsfield",
+    minutes: 3,
+    required: false,
+    secretNames: ["HF_API_KEY_ID", "HF_API_KEY_SECRET"],
+    description:
+      "Planned thumbnail provider. Setup is pending; Cloudflare continues generating thumbnails until the switch is completed.",
+    steps: [
+      "Create an API key ID and matching secret at https://console.higgsfield.ai/.",
+      "Add HF_API_KEY_ID and HF_API_KEY_SECRET in the app dashboard’s Secrets page, not in an app record.",
+      "Higgsfield generation and connection testing remain unavailable until the integration is completed.",
+      "Ask the app builder to complete the Higgsfield switch once credentials are saved. Keep Cloudflare configured as an alternative.",
+    ],
+  },
+  {
     key: "CLOUDFLARE",
     name: "Cloudflare Workers AI",
     minutes: 3,
-    required: true,
+    required: false,
     secretNames: ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_API_TOKEN"],
     description:
       "Generates 16:9 thumbnails with FLUX Schnell using server-side credentials.",
