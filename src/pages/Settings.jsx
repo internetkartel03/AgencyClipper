@@ -66,18 +66,21 @@ export default function Settings() {
     setBusy(true);
     setError("");
     try {
-      const learned = await base44.functions.invoke("learnAgencyPrinciple", {
-        feedback: input,
-      });
-      await mut.mutateAsync({
-        action: "create",
-        data: {
-          scope,
-          userInput: input,
-          learnedPrinciple: String(learned.data.result),
-          timestamp: new Date().toISOString(),
-        },
-      });
+      const chunks = input.match(/[\s\S]{1,6000}/g) || [];
+      for (const chunk of chunks) {
+        const learned = await base44.functions.invoke("learnAgencyPrinciple", {
+          feedback: chunk,
+        });
+        await mut.mutateAsync({
+          action: "create",
+          data: {
+            scope,
+            userInput: chunk,
+            learnedPrinciple: String(learned.data.result),
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
       setInput("");
     } catch (err) {
       setError(err.message);

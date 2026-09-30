@@ -31,7 +31,10 @@ test("accepts only direct YouTube video URLs for analyzed uploads", () => {
     true,
   );
   assert.equal(isYouTubeVideoUrl("https://youtu.be/abcdefghijk"), true);
-  assert.equal(isYouTubeVideoUrl("https://youtube.com/watch?v=example1"), false);
+  assert.equal(
+    isYouTubeVideoUrl("https://youtube.com/watch?v=example1"),
+    false,
+  );
   assert.equal(isYouTubeVideoUrl("https://youtu.be/example2"), false);
   assert.equal(isYouTubeVideoUrl("https://www.youtube.com/@creator"), false);
   assert.equal(isYouTubeVideoUrl("https://example.com/watch?v=abc123"), false);
@@ -110,16 +113,36 @@ test("does not fabricate MRR history when no client start dates exist", () => {
 
 test("normalizes a YouTube analytics import into an AnalyticsSnapshot", () => {
   assert.deepEqual(
-    buildAnalyticsSnapshot("client-1", {
-      views: "1200",
-      subscribers: "42",
-      topVideos: [{ title: "A", views: "99" }],
-    }, "2026-09-29"),
-    { client: "client-1", date: "2026-09-29", views: 1200, subscribers: 42, watchHours: 0, impressionsCTR: 0, topVideos: '[{"title":"A","views":99}]' },
+    buildAnalyticsSnapshot(
+      "client-1",
+      {
+        views: "1200",
+        subscribers: "42",
+        topVideos: [{ title: "A", views: "99" }],
+      },
+      "2026-09-29",
+    ),
+    {
+      client: "client-1",
+      date: "2026-09-29",
+      views: 1200,
+      subscribers: 42,
+      watchHours: 0,
+      impressionsCTR: 0,
+      topVideos: '[{"title":"A","views":99}]',
+    },
   );
 });
 
 test("groups thumbnail sessions by client and calculates named-member capacity", () => {
-  assert.deepEqual(groupThumbnailSessions([{ id: "s", client: "c" }]), { c: [{ id: "s", client: "c" }] });
-  assert.deepEqual(calculateTeamCapacity([{ name: "Alex", client: "a" }, { name: "Alex", client: "b" }]), [{ name: "Alex", clients: 2, overloaded: false }]);
+  assert.deepEqual(groupThumbnailSessions([{ id: "s", client: "c" }]), {
+    c: [{ id: "s", client: "c" }],
+  });
+  assert.deepEqual(
+    calculateTeamCapacity([
+      { name: "Alex", client: "a" },
+      { name: "Alex", client: "b" },
+    ]),
+    [{ name: "Alex", clients: 2, overloaded: false }],
+  );
 });

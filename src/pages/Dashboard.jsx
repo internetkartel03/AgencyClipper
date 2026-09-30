@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import {
   ErrorState,
@@ -25,6 +25,17 @@ export default function Dashboard() {
     objectives = useObjectives(),
     mut = useEntityMutation("DailyObjective", agencyKeys.objectives);
   const [text, setText] = useState("");
+  useEffect(() => {
+    if (!objectives.isLoading && !objectives.data?.length)
+      mut.mutate({
+        action: "create",
+        data: {
+          text: "Review every active client’s first-30-day views and refund-risk status",
+          completed: false,
+          date: new Date().toISOString().slice(0, 10),
+        },
+      });
+  }, [objectives.isLoading, objectives.data?.length]);
   const model = useMemo(() => {
     const active = (clients.data || []).filter((c) => c.status === "ACTIVE"),
       month = new Date().toISOString().slice(0, 7),
