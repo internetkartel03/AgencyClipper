@@ -23,9 +23,15 @@ export default async function (req: Request): Promise<Response> {
         { status: 503 },
       );
     const headers = { Authorization: `Bot ${token}` };
-    const guilds = await fetch("https://discord.com/api/v10/users/@me/guilds", {
-      headers,
-    }).then((r) => r.json());
+    const guildResponse = await fetch(
+      "https://discord.com/api/v10/users/@me/guilds",
+      {
+        headers,
+      },
+    );
+    if (!guildResponse.ok)
+      throw new Error(`Discord guild request failed (${guildResponse.status})`);
+    const guilds = await guildResponse.json();
     const clients = await base44.asServiceRole.entities.Client.list();
     let updated = 0;
     for (const client of clients) {
@@ -33,10 +39,12 @@ export default async function (req: Request): Promise<Response> {
         (g: any) => g.name.toLowerCase() === String(client.name).toLowerCase(),
       );
       if (!guild) continue;
-      const channels = await fetch(
+      const channelResponse = await fetch(
         `https://discord.com/api/v10/guilds/${guild.id}/channels`,
         { headers },
-      ).then((r) => r.json());
+      );
+      if (!channelResponse.ok) continue;
+      const channels = await channelResponse.json();
       const messages = [];
       for (const channel of (channels || [])
         .filter((c: any) => c.type === 0)

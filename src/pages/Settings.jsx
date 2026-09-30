@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Bot,
-  Check,
   Clipboard,
   Clock3,
   Plug,
@@ -78,15 +77,15 @@ export default function Settings() {
     if (requested && getIntegrationDefinition(requested))
       setGuideKey(requested);
   }, [searchParams]);
-  if (knowledge.isLoading) return <LoadingState />;
-  if (knowledge.isError) return <ErrorState />;
-  const entries = (knowledge.data || []).filter((k) => k.scope === scope);
   const guide = getIntegrationDefinition(guideKey);
   const guideProgress = useMemo(
     () =>
       setupCompletion(guideChecks[guideKey] || [], guide?.steps.length || 0),
     [guide, guideChecks, guideKey],
   );
+  if (knowledge.isLoading) return <LoadingState />;
+  if (knowledge.isError) return <ErrorState />;
+  const entries = (knowledge.data || []).filter((k) => k.scope === scope);
   const openGuide = (key) => {
     setGuideKey(key);
     setGuideResult("");
