@@ -20,6 +20,11 @@ import {
   isYouTubeVideoUrl,
   normalizeAnalyzedUploads,
 } from "../src/lib/video-rules.js";
+import {
+  getIntegrationDefinition,
+  integrationStatusTone,
+  setupCompletion,
+} from "../src/lib/integrations.js";
 
 test("classifies the exact four-minute boundary as long-form", () => {
   assert.equal(classifyVideo(239), "SHORT_FORM");
@@ -202,4 +207,19 @@ test("persists successful variations and reports individual failures", async () 
   assert.equal(result.saved, 2);
   assert.equal(result.failures.length, 1);
   assert.equal(result.missingIntegration, true);
+});
+
+test("provides secure integration guides and checklist progress", () => {
+  const discord = getIntegrationDefinition("DISCORD");
+  assert.equal(discord.minutes, 5);
+  assert.match(discord.steps.join(" "), /Message Content Intent/i);
+  assert.equal(discord.secretNames.includes("DISCORD_BOT_TOKEN"), true);
+  assert.deepEqual(setupCompletion([true, false, true], 3), {
+    complete: 2,
+    percent: 67,
+    total: 3,
+  });
+  assert.equal(integrationStatusTone("connected"), "green");
+  assert.equal(integrationStatusTone("error"), "red");
+  assert.equal(integrationStatusTone("missing"), "neutral");
 });
